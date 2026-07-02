@@ -151,7 +151,7 @@ function AssessmentPanel({ disaster }: { disaster: Disaster }) {
         <p className={`text-lg font-bold ${sev.color}`}>{disaster.severity}</p>
       </div>
 
-      {assessment.affected_population && (
+      {Boolean(assessment.affected_population) && (
         <div className="rounded border border-zinc-800 bg-zinc-900/50 px-3 py-2">
           <p className="text-[10px] font-semibold uppercase tracking-widest text-zinc-600">
             Estimated Affected
