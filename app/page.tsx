@@ -269,13 +269,30 @@ export default function Dashboard() {
     try {
       const res = await sigapApi.runAgent(name);
       const data = res.data;
-      // Show a short summary of what happened
       const msg =
         data.message ||
         data.report?.slice(0, 200) ||
         `${name} completed`;
       setAgentResult(`✅ ${msg}`);
+
+      // First refresh — catches immediately saved data
       await fetchAll();
+
+      // If monitor ran, the automated pipeline
+      // (assess + coordinate) runs AFTER the response returns.
+      // We do 2 more delayed refreshes to catch deployments
+      // as they get committed to the DB.
+      if (name === "monitor") {
+        setAgentResult(`✅ ${msg} — Pipeline running, updating...`);
+        setTimeout(async () => {
+          await fetchAll();
+        }, 8000);  // 8s — after assessment starts
+        setTimeout(async () => {
+          await fetchAll();
+          setAgentResult(`✅ Pipeline complete. Check deployments →`);
+        }, 20000); // 20s — after coordination finishes
+      }
+
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : "Unknown error";
       setAgentResult(`❌ ${name} failed: ${msg}`);
