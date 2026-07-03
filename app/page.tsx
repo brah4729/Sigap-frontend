@@ -283,14 +283,17 @@ export default function Dashboard() {
       // We do 2 more delayed refreshes to catch deployments
       // as they get committed to the DB.
       if (name === "monitor") {
-        setAgentResult(`✅ ${msg} — Pipeline running, updating...`);
+        setAgentResult(`✅ ${msg} — Pipeline running in background...`);
         setTimeout(async () => {
-          await fetchAll();
-        }, 8000);  // 8s — after assessment starts
+          await fetchAll(); // catch early assessments
+        }, 15000);  // 15s
+        setTimeout(async () => {
+          await fetchAll(); // catch mid assessments
+        }, 45000);  // 45s
         setTimeout(async () => {
           await fetchAll();
           setAgentResult(`✅ Pipeline complete. Check deployments →`);
-        }, 20000); // 20s — after coordination finishes
+        }, 90000); // 90s — full pipeline on slow free CPU
       }
 
     } catch (e: unknown) {
